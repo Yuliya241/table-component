@@ -1,5 +1,5 @@
 export interface Data {
-  id: number;
+  id: string;
   numberValue: number;
   name: string;
   date: string;

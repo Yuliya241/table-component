@@ -1,40 +1,40 @@
 import { Form, Input, Modal, Button } from "antd";
-import type { ModalProps, CreateRowType } from "../../types/types";
+import type { ModalProps } from "../../types/types";
+import type { Data } from "../../interfaces/interfaces";
 import { useState, type ChangeEvent } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { addToTable } from "../../redux/slices";
-import styles from './Add-modal.module.css'
+import { editData } from "../../redux/slices";
+import styles  from './Edit-modal.module.css'
 import { INITIAL_FORM_DATA } from "../../constants/constants";
 
-export const AddModal = ({ isOpen, setIsOpen }: ModalProps) => {
+export const EditModal = ({ isOpen, setIsOpen, editingRow }: ModalProps) => {
   const [form] = Form.useForm();
-  const [formData, setFormData] = useState<CreateRowType>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<Data>(editingRow || INITIAL_FORM_DATA);
   const dispatch = useDispatch<AppDispatch>();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value: rawValue } = event.target;
     setFormData(prev => ({
       ...prev,
-      id: 'id_' + Math.random().toString(36).substring(2, 9),
       [name]: rawValue
     }));
   };
 
   const handleSubmit = () => {
     setIsOpen(false);
-    dispatch(addToTable(formData));
+    dispatch(editData(formData));
     form.resetFields();
   };
 
-  const handleAdd = () => {
+  const handleChange = () => {
     form
       .validateFields()
       .then(() => {
         handleSubmit();
       })
-      .catch((err) => {
-        console.log("Валидация не пройдена:", err);
+      .catch((info) => {
+        console.log("Валидация не пройдена:", info);
       });
   }
 
@@ -45,9 +45,9 @@ export const AddModal = ({ isOpen, setIsOpen }: ModalProps) => {
 
   return (
     <Modal
-      title="Добавление строки"
+      title="Редактирование строки"
       open={isOpen}
-      okText="Добавить"
+      okText="Изменить"
       cancelText="Отмена"
       onCancel={handleCancel}
       className={styles.modal}
@@ -58,13 +58,19 @@ export const AddModal = ({ isOpen, setIsOpen }: ModalProps) => {
         <Button
           key="submit"
           type="primary"
-          onClick={handleAdd}
+          onClick={handleChange}
         >
-          Добавить
+          Изменить
         </Button>
       ]}
     >
-      <Form layout="vertical" className={styles.form} autoComplete="off" form={form}>
+      <Form
+        layout="vertical"
+        className={styles.form}
+        autoComplete="off"
+        form={form}
+        initialValues={editingRow ? editingRow : INITIAL_FORM_DATA}
+      >
         <Form.Item
           name="numberValue"
           label="Число"
@@ -82,7 +88,7 @@ export const AddModal = ({ isOpen, setIsOpen }: ModalProps) => {
             id="numberValue"
             name="numberValue"
             placeholder="Введите число"
-            value={formData?.numberValue || ''}
+            value={formData?.numberValue}
           />
         </Form.Item>
         <Form.Item

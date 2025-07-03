@@ -25,8 +25,19 @@ export const dataSlice = createSlice({
     getData: (state, action: PayloadAction<Data[]>) => {
       state.items = action.payload;
     },
+    editData: (state, action: PayloadAction<Data>) => {
+      const { numberValue, name, date } = action.payload;
+      const selected = state.items.find((item) => {
+        return item.id === action.payload.id;
+      });
+      if (selected) {
+        selected.numberValue = numberValue;
+        selected.name = name;
+        selected.date = date;
+      }
+    },
   },
 });
 
 export const dataReducer = dataSlice.reducer;
-export const { addToTable, removeFromTable, getData } = dataSlice.actions;
+export const { addToTable, removeFromTable, getData, editData } = dataSlice.actions;
